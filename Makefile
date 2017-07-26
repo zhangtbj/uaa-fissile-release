@@ -27,7 +27,7 @@ publish:
 .PHONY: build certs releases images kube kube-dist helm publish
 
 
-run: kube/bosh/uaa.yml
+run: helm/templates/uaa.yml
 	${GIT_ROOT}/make/run
 
 stop:
