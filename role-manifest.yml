@@ -11,9 +11,9 @@ roles:
   - scripts/patches/enable_mysql_galera_bootstrap.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
+    release_name: uaa-helper
   - name: patch-properties
-    release_name: hcf
+    release_name: uaa-helper
   - name: mysql
     release_name: cf-mysql
   processes:
@@ -70,10 +70,10 @@ roles:
   configuration:
     templates:
       properties.cf_mysql.external_host: "((DOMAIN))"
-      properties.cf_mysql.mysql.advertise_host: mysql-((HCP_COMPONENT_INDEX)).mysql-pod
+      properties.cf_mysql.mysql.advertise_host: mysql-((UAA_COMPONENT_INDEX)).mysql-pod
       properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.cluster_health.password: '((MYSQL_CLUSTER_HEALTH_PASSWORD))'
-      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_HCF_CLUSTER_IPS))((#MYSQL_HCF_CLUSTER_CONFIG_REVISION))((/MYSQL_HCF_CLUSTER_CONFIG_REVISION))'
+      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_UAA_CLUSTER_IPS))((#MYSQL_UAA_CLUSTER_CONFIG_REVISION))((/MYSQL_UAA_CLUSTER_CONFIG_REVISION))'
       properties.cf_mysql.mysql.galera_healthcheck.db_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: "((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))"
       properties.cf_mysql.mysql.seeded_databases: '[{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}]'
@@ -85,7 +85,7 @@ roles:
   - scripts/patches/fix_uaa_monit_timeout.sh
   jobs:
   - name: global-properties # needs to be first so images use it for processing monit templates
-    release_name: hcf
+    release_name: uaa-helper
   - name: uaa
     release_name: uaa
   processes:
@@ -126,7 +126,7 @@ roles:
   type: bosh-task
   jobs:
   - name: generate-secrets
-    release_name: hcf
+    release_name: uaa-helper
   processes: []
   run:
     scaling:
@@ -142,7 +142,7 @@ roles:
     service-account: secret-generator
   configuration:
     templates:
-      properties.hcf.secrets.variables: '((DOMAIN))((KUBE_SIZING_UAA_COUNT))'
+      properties.uaa.secrets.variables: '((DOMAIN))((KUBE_SIZING_UAA_COUNT))'
 configuration:
   auth:
     roles:
@@ -168,9 +168,9 @@ configuration:
       Base domain name of the UAA endpoint; `uaa.${DOMAIN}` must be correctly
       configured to point to this UAA instance
     required: true
-  - name: HCP_COMPONENT_INDEX
+  - name: UAA_COMPONENT_INDEX
     type: environment
-  - name: HCP_SERVICE_DOMAIN_SUFFIX
+  - name: UAA_SERVICE_DOMAIN_SUFFIX
   - name: INTERNAL_CA_CERT
     secret: true
     generator:
@@ -221,11 +221,11 @@ configuration:
       type: Password
     description: The password used to contact the sidecar endpoints via Basic Auth.
     required: true
-  - name: MYSQL_HCF_CLUSTER_CONFIG_REVISION
+  - name: MYSQL_UAA_CLUSTER_CONFIG_REVISION
     default: 0
     description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger component restarts.
     required: true
-  - name: MYSQL_HCF_CLUSTER_IPS
+  - name: MYSQL_UAA_CLUSTER_IPS
     type: environment
   - name: SAML_SERVICEPROVIDER_CERT
     secret: true
@@ -281,4 +281,4 @@ configuration:
     properties.uaa.sslCertificate: ((UAA_SERVER_CERT))((#INTERNAL_CA_CERT))((/INTERNAL_CA_CERT))
     properties.uaa.sslPrivateKey: ((UAA_SERVER_KEY))((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))
     properties.uaa.url: "https://uaa.((DOMAIN)):2793"
-    properties.uaa.zones.internal.hostnames: '["uaa","uaa.((KUBERNETES_NAMESPACE))","uaa.((KUBERNETES_NAMESPACE)).svc","uaa.((HCP_SERVICE_DOMAIN_SUFFIX))"]'
+    properties.uaa.zones.internal.hostnames: '["uaa","uaa.((KUBERNETES_NAMESPACE))","uaa.((KUBERNETES_NAMESPACE)).svc","uaa.((UAA_SERVICE_DOMAIN_SUFFIX))"]'

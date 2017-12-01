@@ -32,7 +32,7 @@ find_cluster_ha_hosts() {
 
             # Note: The varname deref gives us an IP address. We want the
             # actual host name, and construct it.
-            hosts="${hosts},\"${component_name}-${i}.${HCP_SERVICE_DOMAIN_SUFFIX}\""
+            hosts="${hosts},\"${component_name}-${i}.${UAA_SERVICE_DOMAIN_SUFFIX}\""
             i="$(expr "${i}" + 1)"
         done
     else
@@ -49,14 +49,14 @@ find_cluster_ha_hosts() {
         local names=()
         local i
         for (( i = 0 ; i < 60 ; i ++ )) ; do
-            names=($(dig "${component_name}.${HCP_SERVICE_DOMAIN_SUFFIX}" -t SRV | awk '/IN[\t ]+A/ { print $1 }'))
+            names=($(dig "${component_name}.${UAA_SERVICE_DOMAIN_SUFFIX}" -t SRV | awk '/IN[\t ]+A/ { print $1 }'))
             if test "${#names[@]}" -gt 0 ; then
                 break
             fi
             sleep 1
         done
         if test "${#names[@]}" -lt 1 ; then
-            echo "No servers found for ${component_name}.${HCP_SERVICE_DOMAIN_SUFFIX} after 60 seconds; should at least have this container" >&2
+            echo "No servers found for ${component_name}.${UAA_SERVICE_DOMAIN_SUFFIX} after 60 seconds; should at least have this container" >&2
             exit 1
         fi
         local name
@@ -71,16 +71,16 @@ find_cluster_ha_hosts() {
 
 if test -n "${KUBERNETES_NAMESPACE:-}" ; then
     # We're on raw Kubernetes; install some compat things
-    export HCP_IDENTITY_SCHEME=https
-    export HCP_IDENTITY_EXTERNAL_HOST="uaa.${DOMAIN}"
-    export HCP_IDENTITY_EXTERNAL_PORT=443
+    export UAA_IDENTITY_SCHEME=https
+    export UAA_IDENTITY_EXTERNAL_HOST="uaa.${DOMAIN}"
+    export UAA_IDENTITY_EXTERNAL_PORT=443
     # We don't have the cluster name directly available, but it's in resolv.conf, so grab it from there
-    export HCP_SERVICE_DOMAIN_SUFFIX="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
+    export UAA_SERVICE_DOMAIN_SUFFIX="$(awk '/^search/ { print $2 }' /etc/resolv.conf)"
 fi
 
-export CONSUL_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
-export NATS_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
-export ETCD_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
-export MYSQL_HCF_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
+export CONSUL_UAA_CLUSTER_IPS="$(find_cluster_ha_hosts consul)"
+export NATS_UAA_CLUSTER_IPS="$(find_cluster_ha_hosts nats)"
+export ETCD_UAA_CLUSTER_IPS="$(find_cluster_ha_hosts etcd)"
+export MYSQL_UAA_CLUSTER_IPS="$(find_cluster_ha_hosts mysql)"
 
 unset find_cluster_ha_hosts
