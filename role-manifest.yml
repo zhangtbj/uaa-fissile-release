@@ -168,9 +168,6 @@ configuration:
       Base domain name of the UAA endpoint; `uaa.${DOMAIN}` must be correctly
       configured to point to this UAA instance
     required: true
-  - name: UAA_COMPONENT_INDEX
-    type: environment
-  - name: UAA_SERVICE_DOMAIN_SUFFIX
   - name: INTERNAL_CA_CERT
     secret: true
     generator:
@@ -254,6 +251,8 @@ configuration:
     immutable: true
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
+  - name: UAA_COMPONENT_INDEX
+    type: environment
   - name: UAA_SERVER_CERT
     secret: true
     generator:
@@ -269,6 +268,7 @@ configuration:
       type: Certificate
       value_type: private_key
     description: The server's ssl private key. Only passphrase-less keys are supported.
+  - name: UAA_SERVICE_DOMAIN_SUFFIX
   templates:
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.login.saml.serviceProviderCertificate: '"((SAML_SERVICEPROVIDER_CERT))"'
