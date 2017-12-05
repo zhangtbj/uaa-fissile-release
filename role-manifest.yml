@@ -70,10 +70,10 @@ roles:
   configuration:
     templates:
       properties.cf_mysql.external_host: "((DOMAIN))"
-      properties.cf_mysql.mysql.advertise_host: mysql-((UAA_COMPONENT_INDEX)).mysql-pod
+      properties.cf_mysql.mysql.advertise_host: mysql-((KUBE_COMPONENT_INDEX)).mysql-pod
       properties.cf_mysql.mysql.admin_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.cluster_health.password: '((MYSQL_CLUSTER_HEALTH_PASSWORD))'
-      properties.cf_mysql.mysql.cluster_ips: '((MYSQL_UAA_CLUSTER_IPS))((#MYSQL_UAA_CLUSTER_CONFIG_REVISION))((/MYSQL_UAA_CLUSTER_CONFIG_REVISION))'
+      properties.cf_mysql.mysql.cluster_ips: '((KUBE_MYSQL_CLUSTER_IPS))((#MYSQL_UAA_CLUSTER_CONFIG_REVISION))((/MYSQL_UAA_CLUSTER_CONFIG_REVISION))'
       properties.cf_mysql.mysql.galera_healthcheck.db_password: "((MYSQL_ADMIN_PASSWORD))"
       properties.cf_mysql.mysql.galera_healthcheck.endpoint_password: "((MYSQL_GALERA_HEALTHCHECK_ENDPOINT_PASSWORD))"
       properties.cf_mysql.mysql.seeded_databases: '[{"name":"uaadb", "username": "uaaadmin", "password":"((UAADB_PASSWORD))"}]'
@@ -187,6 +187,10 @@ configuration:
   - name: JWT_SIGNING_PEM
   - name: KUBERNETES_NAMESPACE
     type: environment
+  - name: KUBE_COMPONENT_INDEX
+    type: environment
+  - name: KUBE_SERVICE_DOMAIN_SUFFIX
+    type: environment
   - name: KUBE_SIZING_UAA_COUNT
     description: >
       The number of uaa replicas deployed.
@@ -222,7 +226,7 @@ configuration:
     default: 0
     description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger component restarts.
     required: true
-  - name: MYSQL_UAA_CLUSTER_IPS
+  - name: KUBE_MYSQL_CLUSTER_IPS
     type: environment
   - name: SAML_SERVICEPROVIDER_CERT
     secret: true
@@ -251,8 +255,6 @@ configuration:
     immutable: true
     description: The password of the admin client - a client named admin with uaa.admin as an authority.
     required: true
-  - name: UAA_COMPONENT_INDEX
-    type: environment
   - name: UAA_SERVER_CERT
     secret: true
     generator:
@@ -268,7 +270,6 @@ configuration:
       type: Certificate
       value_type: private_key
     description: The server's ssl private key. Only passphrase-less keys are supported.
-  - name: UAA_SERVICE_DOMAIN_SUFFIX
   templates:
     properties.fissile.monit.password: '"((MONIT_PASSWORD))"'
     properties.login.saml.serviceProviderCertificate: '"((SAML_SERVICEPROVIDER_CERT))"'
@@ -281,4 +282,4 @@ configuration:
     properties.uaa.sslCertificate: ((UAA_SERVER_CERT))((#INTERNAL_CA_CERT))((/INTERNAL_CA_CERT))
     properties.uaa.sslPrivateKey: ((UAA_SERVER_KEY))((#INTERNAL_CA_KEY))((/INTERNAL_CA_KEY))
     properties.uaa.url: "https://uaa.((DOMAIN)):2793"
-    properties.uaa.zones.internal.hostnames: '["uaa","uaa.((KUBERNETES_NAMESPACE))","uaa.((KUBERNETES_NAMESPACE)).svc","uaa.((UAA_SERVICE_DOMAIN_SUFFIX))"]'
+    properties.uaa.zones.internal.hostnames: '["uaa","uaa.((KUBERNETES_NAMESPACE))","uaa.((KUBERNETES_NAMESPACE)).svc","uaa.((KUBE_SERVICE_DOMAIN_SUFFIX))"]'
