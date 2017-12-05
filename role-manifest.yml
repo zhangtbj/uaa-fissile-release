@@ -189,6 +189,8 @@ configuration:
     type: environment
   - name: KUBE_COMPONENT_INDEX
     type: environment
+  - name: KUBE_MYSQL_CLUSTER_IPS
+    type: environment
   - name: KUBE_SERVICE_DOMAIN_SUFFIX
     type: environment
   - name: KUBE_SIZING_UAA_COUNT
@@ -226,8 +228,6 @@ configuration:
     default: 0
     description: An indicator to increment when changing the number of MySQL hosts in the cluster, to properly trigger component restarts.
     required: true
-  - name: KUBE_MYSQL_CLUSTER_IPS
-    type: environment
   - name: SAML_SERVICEPROVIDER_CERT
     secret: true
     generator:
